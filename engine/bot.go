@@ -8,18 +8,15 @@ import (
 )
 
 type EngineBot struct {
-	bot   *tgbotapi.BotAPI
-	agent *sdk.Agent
-	hnd   *handler.Handler
-
-	ui *ui.Ui
+	bot     *tgbotapi.BotAPI
+	agent   *sdk.Agent
+	handler *handler.Handler
 }
 
-func NewEngineBot(bot *tgbotapi.BotAPI, agent *sdk.Agent, hnd *handler.Handler, ui *ui.Ui) *EngineBot {
+func NewEngineBot(bot *tgbotapi.BotAPI, ag *sdk.Agent, hnd *handler.Handler, ui *ui.Ui) *EngineBot {
 	return &EngineBot{
-		bot:   bot,
-		agent: agent,
-		hnd:   hnd,
-		ui:    ui,
+		bot:     bot,
+		agent:   ag,
+		handler: hnd,
 	}
 }

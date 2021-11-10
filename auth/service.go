@@ -1,9 +1,14 @@
 package auth
 
 type authServiceInterface interface {
+	//sign-up
 	createTable() error
-	checkAgent() error
-	otherHandChecking() error
+
+	//sign-in
+	verifyAgent() error
+
+	//foreign sign-in
+	foreignVerificate() error
 }
 
 type authService struct {
@@ -22,10 +27,10 @@ func (ar *authService) createTable() error {
 	return nil
 }
 
-func (ar *authService) checkAgent() error {
+func (ar *authService) verifyAgent() error {
 	return nil
 }
 
-func (ar *authService) otherHandChecking() error {
+func (ar *authService) foreignVerificate() error {
 	return nil
 }

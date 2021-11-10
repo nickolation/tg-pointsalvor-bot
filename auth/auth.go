@@ -1,8 +1,23 @@
 package auth
 
-type Auth struct {
+type Auth interface {
+	SingIn()
+	ForeignSignIn()
+	SignUp()
 }
 
-func NewAuth() *Auth {
-	return &Auth{}
+type AuthEngine struct {
+	engine *authServiceInterface
 }
+
+func newAuthEngine(engine authServiceInterface) *AuthEngine {
+	return &AuthEngine{
+		engine: &engine,
+	}
+}
+
+func (eng *AuthEngine) SignIn() {}
+
+func (eng *AuthEngine) ForeignSignIn() {}
+
+func (eng *AuthEngine) SignUp() {}

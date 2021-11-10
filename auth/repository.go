@@ -1,20 +1,30 @@
 package auth
 
+import "github.com/go-redis/redis/v8"
+
 type authRepoInterface interface {
-	checkInRedis()
-	otherCheckInRedis()
-	createNewAgentPair()
+	//sign-in
+	searchAgent()
+
+	//foreign sign-in
+	foreignAuth()
+
+	//sign-up
+	casheAgent()
 }
 
 type authRepo struct {
+	db *redis.Client
 }
 
-func newAuthRepo() *authRepo {
-	return &authRepo{}
+func newAuthRepo(db *redis.Client) *authRepo {
+	return &authRepo{
+		db: db,
+	}
 }
 
-func (ar *authRepo) checkInRedis() {}
+func (ar *authRepo) searchAgent() {}
 
-func (ar *authRepo) otherCheckInRedis() {}
+func (ar *authRepo) foreignAuth() {}
 
-func (ar *authRepo) createNewAgentPair() {}
+func (ar *authRepo) casheAgent() {}
