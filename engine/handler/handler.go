@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/nickolation/tg-pointsalvor-bot/auth"
-	service "github.com/nickolation/tg-pointsalvor-bot/engine/service"
+	"github.com/nickolation/tg-pointsalvor-bot/engine/service"
 	"github.com/nickolation/tg-pointsalvor-bot/ui"
 )
 

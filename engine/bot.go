@@ -10,7 +10,7 @@ import (
 type EngineBot struct {
 	bot     *tgbotapi.BotAPI
 	agent   *sdk.Agent
-	handler *handler.Handler
+	handler *handler.Handler	
 }
 
 func NewEngineBot(bot *tgbotapi.BotAPI, ag *sdk.Agent, hnd *handler.Handler, ui *ui.Ui) *EngineBot {

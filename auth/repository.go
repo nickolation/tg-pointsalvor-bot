@@ -1,10 +1,15 @@
 package auth
 
-import "github.com/go-redis/redis/v8"
+import (
+	"context"
+	"log"
+
+	"github.com/go-redis/redis/v8"
+)
 
 type authRepoInterface interface {
 	//sign-in
-	searchAgent()
+	searchAgent(ctx context.Context, db *redis.Client, chatId string) error
 
 	//foreign sign-in
 	foreignAuth()
@@ -23,7 +28,28 @@ func newAuthRepo(db *redis.Client) *authRepo {
 	}
 }
 
-func (ar *authRepo) searchAgent() {}
+func (ar *authRepo) searchAgent(ctx context.Context, db *redis.Client, chatId string) error {
+	if chatId == "" {
+		return errNilChatId
+	}
+
+	iter := db.Scan(ctx, 0, "auth*", 0).Iterator()
+	if err := iter.Err(); err != nil {
+		return err
+	}
+
+	for iter.Next(ctx) {
+		key := iter.Val()
+		status := IsAuth(key, chatId)
+
+		if status.Status {
+			log.Printf("auth is succes: chat_id - [%s]", chatId)
+			return nil
+		}
+	}
+
+	return errAuth
+}
 
 func (ar *authRepo) foreignAuth() {}
 
