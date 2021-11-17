@@ -7,5 +7,9 @@ import (
 
 func InitAuth(db *redis.Client, api *tgbotapi.BotAPI) *AuthEngine {
 	//init dependency // per-layers
-	return newAuthEngine(newAuthService(newAuthRepo(db), newAuthMessage(api)))
+	store := newAuthRepo(db)
+	msg := newAuthMessage(api)
+	service := newAuthService(store, msg)
+
+	return newAuthEngine(service)
 }

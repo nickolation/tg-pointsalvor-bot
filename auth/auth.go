@@ -1,23 +1,43 @@
 package auth
 
+import (
+	"context"
+	"log"
+)
+
 type Auth interface {
-	SingIn()
-	ForeignSignIn()
-	SignUp()
+	SingIn(ctx context.Context, chatId int64) (string, error)
+	SignUp(ctx context.Context, opt *KeyTokenOpt) error
 }
 
 type AuthEngine struct {
-	engine *authServiceInterface
+	Engine AuthServiceInterface
 }
 
-func newAuthEngine(engine authServiceInterface) *AuthEngine {
+func newAuthEngine(engine AuthServiceInterface) *AuthEngine {
 	return &AuthEngine{
-		engine: &engine,
+		Engine: engine,
 	}
 }
 
-func (eng *AuthEngine) SignIn() {}
+func (eng *AuthEngine) SignIn(ctx context.Context, chatId int64) (string, error) {
+	token, err := eng.Engine.VerifyAgent(ctx, chatId)
+	if err != nil {
+		//		test-log
+		log.Printf("error with verify - [%s]", err.Error())
+		return "", err
+	}
 
-func (eng *AuthEngine) ForeignSignIn() {}
+	return token, nil
+}
 
-func (eng *AuthEngine) SignUp() {}
+func (eng *AuthEngine) SignUp(ctx context.Context, opt *KeyTokenOpt) error {
+
+	if err := eng.Engine.CreateTable(ctx, opt); err != nil {
+		//		test-log
+		log.Printf("error with signUp - [%s]", err.Error())
+		return err
+	}
+
+	return nil
+}

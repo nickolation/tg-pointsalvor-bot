@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	sdk "github.com/nickolation/pointsalvor"
@@ -10,8 +11,8 @@ import (
 //custom auth mod --> zap
 const (
 	authIdentity = "auth"
-	authKey      = "auth!!chat_id:%s!!project_id:%d"
-	authTable    = "table:[%s]"
+	authKey      = "auth!!chat_id:%d!!project_id:%d"
+	authTable    = "table:[%d]"
 )
 
 //custom errors --> zap
@@ -27,20 +28,20 @@ var (
 	errNilChatId = fmt.Errorf("chatId is nil: auth locked")
 
 	//registr
-	errNilOpt    = fmt.Errorf("Keyopt data is nil: registration locked")
-	errIdProject = fmt.Errorf("Id project is nil: registration locked")
+	errNilOpt    = fmt.Errorf("keyopt data is nil: registration locked")
+	errIdProject = fmt.Errorf("id project is nil: registration locked")
 )
 
 //Storage with part of key auth-data: auth!!...
 type KeyTokenOpt struct {
 	//identitty of user
-	chatId string
+	ChatId int64
 
 	//used in set-handlers for identity of entities
-	projId string
+	ProjId string
 
 	//todoist token required for performing the request to api
-	token string
+	Token string
 }
 
 //Status authentification used in validate middleware method
@@ -63,12 +64,12 @@ func linkAgent(token string) (*sdk.Agent, error) {
 
 //make name of table
 //used in signUp method for sending to sdk
-func callTable(chatId string) string {
+func callTable(chatId int64) string {
 	return fmt.Sprintf(authTable, chatId)
 }
 
 //make auth-key value: auth!!chat_id:<>!!projId:<>
-func makeKey(chatId string, projId int) (string, error) {
+func makeKey(chatId, projId int64) (string, error) {
 	if projId == 0 {
 		return "", errIdProject
 	}
@@ -97,23 +98,31 @@ func parseAuthKey(key string) (*KeyTokenOpt, error) {
 		chatPart = partStorage[1]
 		projPart = partStorage[2]
 
-		chatId = chatPart[strings.Index(chatPart, ":")+1:]
+		//		string value now 
+		//		later --> int64
 		projId = chatPart[strings.Index(projPart, ":")+1:]
 	)
 
-	if chatId == "" || projId == "" {
+	//string chatId --> int64 allows the telegram notation
+	c, err := strconv.Atoi(chatPart[strings.Index(chatPart, ":")+1:])
+	if err != nil {
+		return nil, err
+	}
+	chatId := int64(c)
+
+	if chatId == 0 || projId == "" {
 		return nil, errNilId
 	}
 
 	return &KeyTokenOpt{
-		chatId: chatId,
-		projId: projId,
+		ChatId: chatId,
+		ProjId: projId,
 	}, nil
 }
 
 //Validate user for existing the key:auth!! with same chat_id
 //Doesn't lock the process but make statusAuth: status - false
-func isAuth(key string, chatId string) StatusAuth {
+func isAuth(key string, chatId int64) StatusAuth {
 	parts, err := parseAuthKey(key)
 	if err != nil {
 		return StatusAuth{
@@ -121,7 +130,7 @@ func isAuth(key string, chatId string) StatusAuth {
 		}
 	}
 
-	if parts.chatId == chatId {
+	if parts.ChatId == chatId {
 		return StatusAuth{
 			status: true,
 		}

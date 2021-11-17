@@ -5,41 +5,36 @@ import (
 	"log"
 
 	"github.com/go-redis/redis/v8"
-	sdk "github.com/nickolation/pointsalvor"
 )
 
 type authRepoInterface interface {
 	//sign-in
-	searchAgent(ctx context.Context, db *redis.Client, chatId string) (string, error)
-
-	//foreign sign-in
-	foreignAuth()
+	searchAgent(ctx context.Context, chatId int64) (string, error)
 
 	//sign-up
-	casheAgent(ctx context.Context, db *redis.Client, chatId string, ag *sdk.Agent) error
+	casheAgent(ctx context.Context, opt *KeyTokenOpt) error
 }
 
 type authRepo struct {
-	db *redis.Client
 
-	//pointsalvor agent for toodist-requests
-	ag *sdk.Agent
+	//object to connection to the redis-base
+	Db *redis.Client
 }
 
 func newAuthRepo(db *redis.Client) *authRepo {
 	return &authRepo{
-		db: db,
+		Db: db,
 	}
 }
 
 //search agent in database by key
 //cheking the auth status of user and selecting the todoist-token
-func (ar *authRepo) searchAgent(ctx context.Context, db *redis.Client, chatId string) (string, error) {
-	if chatId == "" {
+func (ar *authRepo) searchAgent(ctx context.Context, chatId int64) (string, error) {
+	if chatId == 0 {
 		return "", errNilChatId
 	}
 
-	iter := db.Scan(ctx, 0, "auth*", 0).Iterator()
+	iter := ar.Db.Scan(ctx, 0, "auth*", 0).Iterator()
 	if err := iter.Err(); err != nil {
 		return "", err
 	}
@@ -50,9 +45,9 @@ func (ar *authRepo) searchAgent(ctx context.Context, db *redis.Client, chatId st
 
 		if status {
 			//auth succes log
-			log.Printf("auth is succes: chat_id - [%s]", chatId)
+			log.Printf("auth is succes: chat_id - [%d]", chatId)
 
-			token, err := db.Get(ctx, key).Result()
+			token, err := ar.Db.Get(ctx, key).Result()
 			if err != nil {
 				return "", err
 			}
@@ -64,17 +59,16 @@ func (ar *authRepo) searchAgent(ctx context.Context, db *redis.Client, chatId st
 	return "", errAuth
 }
 
-func (ar *authRepo) foreignAuth() {}
 
 //cashe agent in database according to the auth key-value scheme
 //validation opt inner data on nillable
-func (ar *authRepo) casheAgent(ctx context.Context, db *redis.Client, opt *KeyTokenOpt) error {
+func (ar *authRepo) casheAgent(ctx context.Context, opt *KeyTokenOpt) error {
 	var (
-		token  = opt.token
-		chatId = opt.chatId
+		token  = opt.Token
+		chatId = opt.ChatId
 	)
 
-	if chatId == "" || token == "" {
+	if chatId == 0 || token == "" {
 		return errNilOpt
 	}
 
@@ -93,20 +87,21 @@ func (ar *authRepo) casheAgent(ctx context.Context, db *redis.Client, opt *KeyTo
 	}
 
 	//make key for auth: key- value
-	key, err := makeKey(chatId, proj.Id)
+	key, err := makeKey(chatId, int64(proj.Id))
 	if err != nil {
 		return nil
 	}
+
 	//log-key
 	log.Printf("key - [%s]", key)
 
 	//make pair in redis
-	if err = db.Set(ctx, key, token, 0).Err(); err != nil {
+	if err = ar.Db.Set(ctx, key, token, 0).Err(); err != nil {
 		return err
 	}
 
 	//test-logic
-	val, err := db.Get(ctx, key).Result()
+	val, err := ar.Db.Get(ctx, key).Result()
 	if err != nil {
 		//log key-value
 		log.Printf("token value for key [%s] - [%s]", key, val)
