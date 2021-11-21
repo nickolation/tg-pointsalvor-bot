@@ -7,12 +7,18 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type authRepoInterface interface {
+type authRepoAdapter interface {
 	//sign-in
 	searchAgent(ctx context.Context, chatId int64) (string, error)
 
 	//sign-up
 	casheAgent(ctx context.Context, opt *KeyTokenOpt) error
+
+	//check temp row in redis for validation work with model or token
+	searchTempValue(ctx context.Context, chatId int64) (string, error)
+
+	//cashe temp row in redis for given chatId and value of temp
+	casheTempValue(ctx context.Context, chatId int64, temp string) error
 }
 
 type authRepo struct {
@@ -87,7 +93,7 @@ func (ar *authRepo) casheAgent(ctx context.Context, opt *KeyTokenOpt) error {
 	}
 
 	//make key for auth: key- value
-	key, err := makeKey(chatId, int64(proj.Id))
+	key, err := makeAuthKey(chatId, int64(proj.Id))
 	if err != nil {
 		return nil
 	}
@@ -113,3 +119,53 @@ func (ar *authRepo) casheAgent(ctx context.Context, opt *KeyTokenOpt) error {
 
 	return nil
 }
+
+
+
+//determine temp value for given chatId	
+func (ar *authRepo) searchTempValue(ctx context.Context, chatId int64) (string, error) {
+	key, err := makeTempKey(chatId)
+	//		test-log
+	log.Printf("temp key is [%s]", key)
+	if err != nil {
+		return "", err
+	}
+
+
+	val, err := ar.Db.Get(ctx, key).Result()
+	//		test-log
+	log.Printf("val temp is [%s]", val)
+	if err != nil {
+		return "", err
+	}
+
+	return val, nil
+}
+
+
+func (ar *authRepo) casheTempValue(ctx context.Context, chatId int64, temp string) error {
+	if temp == "" {
+		return errNilTemp
+	}
+
+	key, err := makeTempKey(chatId)
+	//		test-log
+	log.Printf("temp key is [%s]", key)
+	if err != nil {
+		return err
+	}
+
+	val, err := ar.Db.Set(ctx, key, temp, 0).Result()
+	//		test-log
+	log.Printf("val temp creation is [%s]", val)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+
+
+

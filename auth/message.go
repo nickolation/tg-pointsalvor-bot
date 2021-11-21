@@ -10,7 +10,7 @@ var (
 	succesAuthText = "Успешная регистрация, ваша доска готова к работе"
 )
 
-type authMessageInterface interface {
+type authMessageAdapter interface {
 	AlreadyAuthorized(chatId int64) error
 	SuccesAuthorized(chatId int64) error
 }

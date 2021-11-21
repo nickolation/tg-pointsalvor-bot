@@ -1,6 +1,9 @@
 package service
 
 import (
+	"context"
+
+	sdk "github.com/nickolation/pointsalvor"
 	"github.com/nickolation/tg-pointsalvor-bot/auth"
 	"github.com/nickolation/tg-pointsalvor-bot/engine/external/repository"
 )
@@ -15,7 +18,7 @@ type Tasks interface {
 }
 
 type Sections interface {
-	AddSection()
+	AddSection(ctx context.Context, token, name string, projId int) (*sdk.Section, error)
 	DeleteSection()
 	GetAllSections()
 	GetLastSection()

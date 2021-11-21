@@ -8,28 +8,28 @@ import (
 
 //opts for init BotStorage
 type StorageOptions struct {
-	port string
-	host string
-	ctx  context.Context
+	Port string
+	Host string
+	Ctx  context.Context
 }
 
 //implementation of repo-lay
 type BotStorage struct {
-	client *redis.Client
+	Client *redis.Client
 }
 
 func NewBotStorage(opt StorageOptions) (*BotStorage, error) {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     opt.host + opt.port,
+		Addr:     opt.Host + opt.Port,
 		Password: "",
 		DB:       0,
 	})
 
-	if err := rdb.Ping(opt.ctx).Err(); err != nil {
+	if err := rdb.Ping(opt.Ctx).Err(); err != nil {
 		return nil, err
 	}
 
 	return &BotStorage{
-		client: rdb,
+		Client: rdb,
 	}, nil
 }

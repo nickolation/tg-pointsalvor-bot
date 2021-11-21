@@ -23,7 +23,8 @@ func main() {
 		log.Printf("error - [%s]", err.Error())
 	}
 
-	api, err := botapi.NewBotAPI("2020337404:AAHz7iU8yGaWwwPYhIjcu8HHY4QUCpnZKvo")
+	//		token is dirty 
+	api, err := botapi.NewBotAPI("<token>")
 	if err != nil {
 		log.Printf("error - [%s]", err.Error())
 	}

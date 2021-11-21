@@ -2,6 +2,11 @@ package repository
 
 import "github.com/nickolation/tg-pointsalvor-bot/engine/external/storage"
 
+
+const (
+	taskKey = "task!!chat_id:%s"
+)
+
 type TaskRepo struct {
 	db *storage.BotStorage
 }

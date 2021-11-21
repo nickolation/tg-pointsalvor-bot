@@ -28,8 +28,8 @@ github.com/google/go-cmp v0.5.6/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/mitchellh/mapstructure v1.4.2 h1:6h7AQ0yhTcIsmFmnAwQls75jp2Gzs4iB8W7pjMO+rqo=
 github.com/mitchellh/mapstructure v1.4.2/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
-github.com/nickolation/pointsalvor v0.0.0-20211105151638-688340413a34 h1:zpW5J9ymQ1hw+w3966ArstfGivuxgDnzvnNNrukJdAE=
-github.com/nickolation/pointsalvor v0.0.0-20211105151638-688340413a34/go.mod h1:GE6qqygYih9ng7GEGEuqGFi9bHrYcjFJsxguykWSVVg=
+github.com/nickolation/pointsalvor v0.0.0-20211121184426-8ca62a2955dd h1:d6GbBRLVEch7t7iKK17sgoI2G8RdamFpcnkCUteBwSM=
+github.com/nickolation/pointsalvor v0.0.0-20211121184426-8ca62a2955dd/go.mod h1:GE6qqygYih9ng7GEGEuqGFi9bHrYcjFJsxguykWSVVg=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

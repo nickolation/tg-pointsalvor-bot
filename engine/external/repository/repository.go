@@ -1,6 +1,17 @@
 package repository
 
-import "github.com/nickolation/tg-pointsalvor-bot/engine/external/storage"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/nickolation/tg-pointsalvor-bot/engine/external/storage"
+)
+
+
+var (
+	errNilChatId = errors.New("nil chat id value - key generation isn't valid")
+)
+
 
 type Tasks interface {
 	CasheTask()
@@ -42,3 +53,14 @@ func NewRepository(store *storage.BotStorage) *Repository {
 		Tables:   NewTableRepo(store),
 	}
 }
+
+//make key allows the template - one the key structure 
+func makeKey(template string, chatId int64) (string, error) {
+	if chatId == 0 {
+		return "", errNilChatId
+	} 
+
+	return fmt.Sprintf(sectionKey, chatId), nil
+}
+
+

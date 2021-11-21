@@ -11,7 +11,10 @@ import (
 //custom auth mod --> zap
 const (
 	authIdentity = "auth"
+
 	authKey      = "auth!!chat_id:%d!!project_id:%d"
+	tempKey = "temp!!chat_id:%d"
+
 	authTable    = "table:[%d]"
 )
 
@@ -30,6 +33,9 @@ var (
 	//registr
 	errNilOpt    = fmt.Errorf("keyopt data is nil: registration locked")
 	errIdProject = fmt.Errorf("id project is nil: registration locked")
+
+	//temp 
+	errNilTemp =  fmt.Errorf("temp value is nil: temp locked")
 )
 
 //Storage with part of key auth-data: auth!!...
@@ -69,7 +75,7 @@ func callTable(chatId int64) string {
 }
 
 //make auth-key value: auth!!chat_id:<>!!projId:<>
-func makeKey(chatId, projId int64) (string, error) {
+func makeAuthKey(chatId, projId int64) (string, error) {
 	if projId == 0 {
 		return "", errIdProject
 	}
@@ -139,4 +145,14 @@ func isAuth(key string, chatId int64) StatusAuth {
 	return StatusAuth{
 		status: false,
 	}
+}
+
+
+//generate key for temp-row in the redis 
+func makeTempKey(chatId int64) (string, error) {
+	if chatId == 0 {
+		return "", errNilChatId
+	}
+
+	return fmt.Sprintf(tempKey, chatId), nil
 }
