@@ -59,7 +59,7 @@ func (sr *SectionRepo) CasheSection(ctx context.Context, chatId int64, s *sdk.Se
 	_, err = sr.db.Client.Set(ctx, key, string(jsonData), 0).Result()
 	if err != nil {
 		//		test-log
-		log.Print("error with set section key - [%s]", err.Error())
+		log.Printf("error with set section key - [%s]", err.Error())
 		return err
 	}
 	

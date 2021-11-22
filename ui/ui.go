@@ -8,6 +8,7 @@ type UiAdapter interface {
 	Greet(chatId int64) error 
 	ActiveSections(chatId int64) error 
 	ActiveTasks(chatId int64) error
+	ErrorCommand(chatId int64) error
 }
 
 

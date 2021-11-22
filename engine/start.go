@@ -16,10 +16,13 @@ func (bot *EngineBot) StartEngine(ctx context.Context) error {
 	//block operation
 	updates, err := bot.bot.GetUpdatesChan(cfg)
 	if err != nil {
+		//test-log
+		log.Printf("error with getting updates - [%s]", err.Error())
+
 		return err
 	}
 
-	//iteratung uodate and handling signals from chat
+	//iterating update and handling the signals from the chat
 	for update := range updates {
 		msg := update.Message
 
@@ -27,15 +30,32 @@ func (bot *EngineBot) StartEngine(ctx context.Context) error {
 			continue
 		}
 
-		if msg.IsCommand() {
-			bot.handler.HandleStart(ctx, msg.Chat.ID)
+		//data of message
+		chatId := msg.Chat.ID
+		data := msg.Text
+
+		if cmd := msg.Command(); cmd != "" {
+			if cmd == "start" {
+				if err := bot.handler.HandleStart(ctx, chatId); err != nil {
+					//		test-log
+					log.Printf("error with start message - [%s]", err.Error())
+				}
+				continue
+			}
+
+			//		test-logs
+			log.Printf("what is the command? - [%s]", cmd)
+			if err := bot.handler.HandleForeignCommand(chatId); err != nil {
+				//		...
+				log.Printf("error with handling foreign command - [%s]", err)
+			}
+
 			continue
 		}
 
-		if err := bot.handler.HandleMessage(ctx, msg.Chat.ID, msg.Text); err != nil {
+		if err := bot.handler.HandleMessage(ctx, chatId, data); err != nil {
 			//		test-log
 			log.Printf("error with handling - [%s]", err.Error())
-			return err
 		}
 	}
 

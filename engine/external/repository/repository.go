@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
+	sdk "github.com/nickolation/pointsalvor"
 	"github.com/nickolation/tg-pointsalvor-bot/engine/external/storage"
 )
 
@@ -27,7 +29,7 @@ type Tasks interface {
 type Sections interface {
 	//?
 	SelectSection()
-	CasheSection()
+	CasheSection(ctx context.Context, chatId int64, s *sdk.Section) error
 	RemoveSection()
 	SelectAllSection()
 	SelectLastSection()

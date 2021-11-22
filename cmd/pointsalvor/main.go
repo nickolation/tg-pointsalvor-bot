@@ -9,6 +9,7 @@ import (
 	"github.com/nickolation/tg-pointsalvor-bot/engine"
 	"github.com/nickolation/tg-pointsalvor-bot/engine/external/storage"
 	"github.com/nickolation/tg-pointsalvor-bot/engine/handler"
+	"github.com/nickolation/tg-pointsalvor-bot/ui"
 )
 
 func main() {
@@ -23,6 +24,7 @@ func main() {
 		log.Printf("error - [%s]", err.Error())
 	}
 
+	//open token 
 	api, err := botapi.NewBotAPI("2020337404:AAHz7iU8yGaWwwPYhIjcu8HHY4QUCpnZKvo")
 	if err != nil {
 		log.Printf("error - [%s]", err.Error())
@@ -30,7 +32,8 @@ func main() {
 
 	auth := auth.InitAuth(store.Client, api)
 
-	handler := handler.NewHandler(nil, nil, auth)
+	ui := ui.NewUi(api)
+	handler := handler.NewHandler(ui, nil, auth)
 
 	if bot := engine.NewEngineBot(api, handler, nil); bot != nil {
 		bot.StartEngine(ctx)

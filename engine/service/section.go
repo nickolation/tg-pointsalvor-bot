@@ -19,7 +19,7 @@ func NewSectionService(repo *repository.Sections) *SectionService {
 }
 
 func (ss *SectionService) AddSection(ctx context.Context, token, name string, projId int) (*sdk.Section, error) {
-	agent, err := sdk.LinkAgent(token)
+	agent, err := sdk.NewAgent(token)
 	if err != nil {
 		log.Printf("error with linking the agent - [%s]", err.Error())
 		return nil, err

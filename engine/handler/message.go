@@ -11,6 +11,14 @@ func (hnd *Handler) HandleMessage(ctx context.Context, chatId int64, data string
 	temp, err := hnd.auth.SearchTemp(ctx, chatId)
 	log.Printf("temp is - [%s]", temp)
 	if err != nil {
+		//		test-log 
+		log.Printf("error with search temp - [%s]", err)
+
+		return err
+	}
+	
+	//delete temp value for updating by new row next time
+	if err := hnd.auth.DeleteTemp(ctx, chatId); err != nil {
 		return err
 	}
 
@@ -28,5 +36,14 @@ func (hnd *Handler) HandleMessage(ctx context.Context, chatId int64, data string
 		///
 	}
 
+	return nil
+}
+
+
+func (hnd *Handler) HandleForeignCommand(chatId int64) error {
+	if err := hnd.ui.ErrorCommand(chatId); err != nil {
+		return err
+	}
+	
 	return nil
 }

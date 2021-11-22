@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	sdk "github.com/nickolation/pointsalvor"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -19,6 +20,9 @@ type authRepoAdapter interface {
 
 	//cashe temp row in redis for given chatId and value of temp
 	casheTempValue(ctx context.Context, chatId int64, temp string) error
+
+	//delete temp for next updating the value 
+	deleteTempValue(ctx context.Context, chatId int64) error
 }
 
 type authRepo struct {
@@ -79,7 +83,7 @@ func (ar *authRepo) casheAgent(ctx context.Context, opt *KeyTokenOpt) error {
 	}
 
 	//link agent with same token
-	ag, err := linkAgent(token)
+	ag, err := sdk.NewAgent(token)
 	if err != nil {
 		return err
 	}
@@ -166,6 +170,24 @@ func (ar *authRepo) casheTempValue(ctx context.Context, chatId int64, temp strin
 }
 
 
+func (ar *authRepo) deleteTempValue(ctx context.Context, chatId int64) error {
+	key, err := makeTempKey(chatId)
+	if err != nil {
+		//		test-log
+		log.Printf("error with making the tempKey - [%s]", err)
 
+		return err
+	}
+	
+	_, err = ar.Db.Del(ctx, key).Result()
+	if err != nil {
+		//		test-log
+		log.Printf("error with delete key - [%s]", err)
+
+		return err
+	}
+
+	return nil
+}
 
 

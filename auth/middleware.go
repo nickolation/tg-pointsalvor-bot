@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	sdk "github.com/nickolation/pointsalvor"
 )
 
 //custom auth mod --> zap
@@ -58,15 +56,6 @@ type StatusAuth struct {
 	status bool
 }
 
-//makes new pointsalvor-agent with token is need to use sdk-method
-func linkAgent(token string) (*sdk.Agent, error) {
-	ag, err := sdk.NewAgent(token)
-	if err != nil {
-		return nil, err
-	}
-
-	return ag, nil
-}
 
 //make name of table
 //used in signUp method for sending to sdk

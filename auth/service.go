@@ -12,11 +12,18 @@ type AuthServiceInterface interface {
 	//sign-in
 	VerifyAgent(ctx context.Context, chatId int64) (string, error)
 
+	//don't cashe agent and enjoy the life 
+	//send message about already auth
+	AlreadyAuthorized(chatId int64) error
+
 	//make temp row in redis
 	MakeTemp(ctx context.Context, chatId int64, temp string) error
 
 	//search temp value
 	SearchTemp(ctx context.Context, chatId int64) (string, error)
+
+	//delete temp value in service-level
+	DeleteTemp(ctx context.Context, chatId int64) error
 }
 
 type authService struct {
@@ -34,6 +41,13 @@ func newAuthService(store authRepoAdapter, msg authMessageAdapter) *authService 
 func (as *authService) CreateTable(ctx context.Context, opt *KeyTokenOpt) error {
 	if err := as.authRepoAdapter.casheAgent(ctx, opt); err != nil {
 		return err
+	}
+
+	if err := as.authMessageAdapter.SuccesAuthorized(opt.ChatId); err != nil {
+		//		test-log	
+		log.Printf("error with message - [%s]", err.Error())
+		return err
+
 	}
 
 	return nil
@@ -56,13 +70,6 @@ func (as *authService) MakeTemp(ctx context.Context, chatId int64, temp string) 
 		return err
 	}
 
-	if err := as.authMessageAdapter.SuccesAuthorized(chatId); err != nil {
-		//		test-log	
-		log.Printf("error with message - [%s]", err.Error())
-		return err
-
-	}
-
 	return nil
 }
 
@@ -76,4 +83,23 @@ func (as *authService) SearchTemp(ctx context.Context, chatId int64) (string, er
 	}
 
 	return val, nil
+}
+
+
+func (as *authService) AlreadyAuthorized(chatId int64) error {
+	if err := as.authMessageAdapter.AlreadyAuthorized(chatId); err != nil {
+		//		test-log
+		log.Printf("error with message - [%s]", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (as *authService) DeleteTemp(ctx context.Context, chatId int64) error {
+	if err := as.authRepoAdapter.deleteTempValue(ctx, chatId); err != nil {
+		return err
+	}
+	
+	return nil
 }
