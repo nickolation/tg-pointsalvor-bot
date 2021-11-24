@@ -10,7 +10,7 @@ type AuthServiceInterface interface {
 	CreateTable(ctx context.Context, opt *KeyTokenOpt) error
 
 	//sign-in
-	VerifyAgent(ctx context.Context, chatId int64) (string, error)
+	VerifyAgent(ctx context.Context, chatId int64) (*KeyTokenOpt, error)
 
 	//don't cashe agent and enjoy the life 
 	//send message about already auth
@@ -53,13 +53,13 @@ func (as *authService) CreateTable(ctx context.Context, opt *KeyTokenOpt) error 
 	return nil
 }
 
-func (as *authService) VerifyAgent(ctx context.Context, chatId int64) (string, error) {
-	token, err := as.authRepoAdapter.searchAgent(ctx, chatId)
+func (as *authService) VerifyAgent(ctx context.Context, chatId int64) (*KeyTokenOpt, error) {
+	opt, err := as.authRepoAdapter.searchAgent(ctx, chatId)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return opt, nil
 }
 
 func (as *authService) MakeTemp(ctx context.Context, chatId int64, temp string) error {

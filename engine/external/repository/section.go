@@ -11,7 +11,7 @@ import (
 
 
 const (
-	sectionKey = "section!!chat_id:%d"
+	sectionModel = "section"
 )
 
 var (
@@ -36,8 +36,43 @@ func (sr *SectionRepo) RemoveSection() {
 
 }
 
-func (sr *SectionRepo) SelectAllSection() {
 
+func (sr *SectionRepo) SelectAllSection(ctx context.Context, chatId int64) ([]sdk.Section, error) {
+	matcher := getIdentityMatcher(sectionModel, chatId)
+	iter := sr.db.Client.Scan(ctx, 0, matcher, 0).Iterator()
+	if err := iter.Err(); err == nil {
+		//		test-log
+		log.Printf("error with the scanner - [%s]", err.Error())
+
+		return nil, err
+	}
+
+	sectionList := []sdk.Section{}
+
+	for iter.Next(ctx) {
+		key := iter.Val()
+		val, err := sr.db.Client.Get(ctx, key).Result()
+		if err != nil {
+			//		test-log
+			log.Printf("error with getting value - [%s]", err.Error())
+			
+			return nil, err
+		}
+
+		input := &sdk.Section{}
+
+		//		[]byte???
+		if err = json.Unmarshal([]byte(val), input); err != nil {
+			//		test-log
+			log.Printf("unmarshal problem - [%s]", err.Error())
+
+			return nil, err
+		}
+
+		sectionList = append(sectionList, *input)
+	}
+
+	return sectionList, nil
 }
 
 func (sr *SectionRepo) SelectLastSection() {
@@ -50,7 +85,7 @@ func (sr *SectionRepo) CasheSection(ctx context.Context, chatId int64, s *sdk.Se
 		return err
 	}
 
-	key, err := makeKey(sectionKey, chatId)
+	key, err := makeKey(sectionModel, chatId)
 	if err != nil {
 		return err
 	}

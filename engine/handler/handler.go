@@ -2,17 +2,24 @@ package handler
 
 import (
 	"context"
+	"errors"
 
 	"github.com/nickolation/tg-pointsalvor-bot/auth"
 	"github.com/nickolation/tg-pointsalvor-bot/engine/service"
 	"github.com/nickolation/tg-pointsalvor-bot/ui"
 )
 
+var (
+	errNilOpt = errors.New("nil optios: data or caption - handle callback is blocked")
+)
+
+
 type HandlerAdapter interface {
-	HandleCallback()
+	HandleCallback(ctx context.Context, chatId int64, data string) error
 	HandleMessage(ctx context.Context, chatId int64, data string) error
 	HandleStart(ctx context.Context, chatId int64) error
 	HandleForeignCommand(chatId int64) error
+
 }
 
 type Handler struct {

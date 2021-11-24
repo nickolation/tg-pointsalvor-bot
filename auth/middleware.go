@@ -42,7 +42,7 @@ type KeyTokenOpt struct {
 	ChatId int64
 
 	//used in set-handlers for identity of entities
-	ProjId string
+	ProjId int
 
 	//todoist token required for performing the request to api
 	Token string
@@ -85,6 +85,7 @@ func parseAuthKey(key string) (*KeyTokenOpt, error) {
 		return nil, errInvalidKey
 	}
 
+	//		overhead
 	if partStorage[0] != authIdentity {
 		return nil, errForeignKey
 	}
@@ -92,11 +93,9 @@ func parseAuthKey(key string) (*KeyTokenOpt, error) {
 	var (
 		chatPart = partStorage[1]
 		projPart = partStorage[2]
-
-		//		string value now 
-		//		later --> int64
-		projId = chatPart[strings.Index(projPart, ":")+1:]
 	)
+
+	var	p = chatPart[strings.Index(projPart, ":")+1:]
 
 	//string chatId --> int64 allows the telegram notation
 	c, err := strconv.Atoi(chatPart[strings.Index(chatPart, ":")+1:])
@@ -105,7 +104,13 @@ func parseAuthKey(key string) (*KeyTokenOpt, error) {
 	}
 	chatId := int64(c)
 
-	if chatId == 0 || projId == "" {
+	//		p --> int for the unification 
+	projId, err := strconv.Atoi(p)
+	if err != nil {
+		return nil, err
+	}
+
+	if chatId == 0 || projId == 0 {
 		return nil, errNilId
 	}
 

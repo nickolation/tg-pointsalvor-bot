@@ -6,12 +6,12 @@ import (
 )
 
 type Auth interface {
-	SignIn(ctx context.Context, chatId int64) (string, error)
+	SignIn(ctx context.Context, chatId int64) (*KeyTokenOpt, error)
 	SignUp(ctx context.Context, opt *KeyTokenOpt) error
 	MakeTemp(ctx context.Context, chatId int64, temp string) error
 	SearchTemp(ctx context.Context, chatId int64) (string, error)
-	AlreadyAuth(chatId int64) error
 	DeleteTemp(ctx context.Context, chatId int64) error
+	AlreadyAuth(chatId int64) error
 }
 
 type AuthEngine struct {
@@ -24,15 +24,15 @@ func newAuthEngine(engine AuthServiceInterface) *AuthEngine {
 	}
 }
 
-func (eng *AuthEngine) SignIn(ctx context.Context, chatId int64) (string, error) {
-	token, err := eng.Engine.VerifyAgent(ctx, chatId)
+func (eng *AuthEngine) SignIn(ctx context.Context, chatId int64) (*KeyTokenOpt, error) {
+	opt, err := eng.Engine.VerifyAgent(ctx, chatId)
 	if err != nil {
 		//		test-log
 		log.Printf("error with verify - [%s]", err.Error())
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return opt, nil
 }
 
 func (eng *AuthEngine) SignUp(ctx context.Context, opt *KeyTokenOpt) error {

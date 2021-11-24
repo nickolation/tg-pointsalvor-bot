@@ -8,6 +8,20 @@ import (
 	"github.com/nickolation/tg-pointsalvor-bot/engine/external/repository"
 )
 
+//action wich can be performed under the callback-signal from user 
+//list -> write model, view model, close task model
+type Actions interface {
+	//section / task 
+	ActWrite(ctx context.Context, chatId int64, model string) error
+	
+	//section only 
+	ActView(ctx context.Context, chatId int64) error
+
+	//clsoe task only
+	ActClose(ctx context.Context, chatId int64) error
+}
+
+
 type Tasks interface {
 	AddTask()
 	DeleteTask()
@@ -18,10 +32,10 @@ type Tasks interface {
 }
 
 type Sections interface {
-	AddSection(ctx context.Context, token, name string, projId int) (*sdk.Section, error)
+	AddSection(ctx context.Context, chatId int64, name string) error
 	DeleteSection()
-	GetAllSections()
-	GetLastSection()
+	GetAllSections(ctx context.Context, chatId int64) ([]sdk.Section, error)
+ 	GetLastSection()
 	//other
 }
 
@@ -34,12 +48,14 @@ type Service struct {
 	Tasks
 	Sections
 	Tables
+	Actions
 }
 
-func NewService(auth *auth.AuthEngine, repo *repository.Repository) *Service {
+func NewService(a auth.Auth, r repository.Repository) *Service {
 	return &Service{
-		Tasks:    NewTaskService(&repo.Tasks),
-		Sections: NewSectionService(&repo.Sections),
-		Tables:   NewTableService(&repo.Tables),
+		Tasks:    NewTaskService(&r.Tasks),
+		Sections: NewSectionService(r.Sections, a),
+		Tables:   NewTableService(&r.Tables),
+		Actions: NewActor(&r.Commits),
 	}
 }

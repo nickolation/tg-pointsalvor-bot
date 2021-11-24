@@ -10,7 +10,7 @@ import (
 
 type authRepoAdapter interface {
 	//sign-in
-	searchAgent(ctx context.Context, chatId int64) (string, error)
+	searchAgent(ctx context.Context, chatId int64) (*KeyTokenOpt, error)
 
 	//sign-up
 	casheAgent(ctx context.Context, opt *KeyTokenOpt) error
@@ -39,14 +39,16 @@ func newAuthRepo(db *redis.Client) *authRepo {
 
 //search agent in database by key
 //cheking the auth status of user and selecting the todoist-token
-func (ar *authRepo) searchAgent(ctx context.Context, chatId int64) (string, error) {
+func (ar *authRepo) searchAgent(ctx context.Context, chatId int64) (*KeyTokenOpt, error) {
 	if chatId == 0 {
-		return "", errNilChatId
+		return nil, errNilChatId
 	}
 
+	//		auth:chat_id scan is pretty 
+	//		overhead
 	iter := ar.Db.Scan(ctx, 0, "auth*", 0).Iterator()
 	if err := iter.Err(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	for iter.Next(ctx) {
@@ -57,16 +59,12 @@ func (ar *authRepo) searchAgent(ctx context.Context, chatId int64) (string, erro
 			//auth succes log
 			log.Printf("auth is succes: chat_id - [%d]", chatId)
 
-			token, err := ar.Db.Get(ctx, key).Result()
-			if err != nil {
-				return "", err
-			}
-
-			return token, nil
+			res, _ := parseAuthKey(key)
+			return res, nil
 		}
 	}
 
-	return "", errAuth
+	return nil, errAuth
 }
 
 

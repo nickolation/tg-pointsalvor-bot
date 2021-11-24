@@ -57,6 +57,12 @@ func (bot *EngineBot) StartEngine(ctx context.Context) error {
 			//		test-log
 			log.Printf("error with handling - [%s]", err.Error())
 		}
+
+		if cbquery := update.CallbackQuery; cbquery != nil {
+			if err := bot.handler.HandleCallback(ctx, chatId, cbquery.Data); err != nil {
+				///
+			}
+		}
 	}
 
 	return nil
